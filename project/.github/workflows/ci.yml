@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r project/requirements.txt
+
+      - name: Run lint checks
+        run: ruff check project/app project/tests
+
+      - name: Run test suite
+        run: |
+          if python -c "import pathlib; import sys; sys.exit(0 if list(pathlib.Path('project/tests').rglob('*.py')) else 1)"; then
+            pytest -q project/tests
+          else
+            echo "No tests discovered yet in project/tests; skipping pytest."
+          fi
