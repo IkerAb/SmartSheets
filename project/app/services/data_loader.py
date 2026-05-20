@@ -1,8 +1,9 @@
-"""Upload ingestion service: parse files and orchestrate persistence."""
+"""Upload ingestion service: parse, validate, clean, and persist."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+
 import pandas as pd
 
 from app.models.dataset_models import (
@@ -19,43 +20,45 @@ from app.utils.validators import validate_and_normalize_sales_dataframe
 @dataclass(frozen=True)
 class FileUploadPayload:
     """Service input payload for uploaded file content."""
-
     filename: str
     content: bytes
 
 
 class DataLoaderService:
-    """Coordinate upload parsing and PostgreSQL-backed persistence."""
+    """Coordinate upload parsing, validation, cleaning, and PostgreSQL persistence."""
 
     def __init__(self, repository: DatasetRepository) -> None:
         self._repository = repository
 
     def ingest_and_persist(self, payload: FileUploadPayload) -> DatasetPersistResult:
+        """
+        Full ingestion pipeline:
+        1. Parse CSV/XLSX → raw DataFrame
+        2. Validate schema and normalize types
+        3. Convert to domain records
+        4. Persist atomically → status CLEANED
+        Raises ValueError on validation failures (caller marks dataset FAILED).
+        """
         df = load_sales_dataframe(file_bytes=payload.content, filename=payload.filename)
         df = validate_and_normalize_sales_dataframe(df)
         records = self._to_records(df=df)
         request = DatasetPersistRequest(
             source_filename=payload.filename,
-            status=DatasetStatus.VALIDATED,
+            status=DatasetStatus.CLEANED,
             records=records,
         )
         return self._repository.persist_dataset(request=request)
 
     @staticmethod
     def _to_records(df: pd.DataFrame) -> list[SalesRecordInput]:
-        """
-        Convert parsed dataframe rows into canonical record DTOs.
-
-        Detailed validation rules are implemented in task 2.2.
-        """
         result: list[SalesRecordInput] = []
         for row in df.itertuples(index=False):
-            row_dict = row._asdict()
+            d = row._asdict()
             result.append(
                 SalesRecordInput(
-                    fecha=row_dict["fecha"].to_pydatetime(),
-                    producto=row_dict["producto"],
-                    ventas=row_dict["ventas"],
+                    fecha=d["fecha"].to_pydatetime(),
+                    producto=str(d["producto"]),
+                    ventas=float(d["ventas"]),
                 )
             )
         return result
