@@ -1,8 +1,9 @@
 """
 app/services/analysis.py
 ─────────────────────────
-Calcula KPIs de negocio: ventas totales, top productos, crecimiento MoM,
-ticket promedio, y genera resumen en lenguaje natural.
+Calcula KPIs. Campos alineados con el frontend React:
+- top_products: usa 'pct' en lugar de 'pct_of_total'
+- monthly_growth: usa 'sales' y 'mom_pct' en lugar de 'total' y 'pct_change'
 """
 from __future__ import annotations
 
@@ -18,7 +19,6 @@ class AnalysisService:
     def compute_insights(self, df: pd.DataFrame) -> dict:
         logger.info("Computing insights for %d rows", len(df))
 
-        # normalizar fecha sin timezone para operaciones de resample
         df = df.copy()
         df["fecha"] = pd.to_datetime(df["fecha"]).dt.tz_localize(None)
 
@@ -52,7 +52,8 @@ class AnalysisService:
             {
                 "name": prod,
                 "total": round(float(val), 2),
-                "pct_of_total": round(float(val) / total_sales * 100, 1) if total_sales else 0.0,
+                "pct": round(float(val) / total_sales * 100, 1) if total_sales else 0.0,
+                # ↑ 'pct' en lugar de 'pct_of_total' — alineado con frontend
             }
             for prod, val in grouped.items()
         ]
@@ -66,12 +67,13 @@ class AnalysisService:
         )
         monthly["month"] = monthly["fecha"].dt.strftime("%Y-%m")
         monthly["pct_change"] = monthly["ventas"].pct_change() * 100
+
         result = []
         for _, row in monthly.iterrows():
             result.append({
                 "month": row["month"],
-                "total": round(float(row["ventas"]), 2),
-                "pct_change": round(float(row["pct_change"]), 1)
+                "sales": round(float(row["ventas"]), 2),       # 'sales' en lugar de 'total'
+                "mom_pct": round(float(row["pct_change"]), 1)  # 'mom_pct' en lugar de 'pct_change'
                 if not pd.isna(row["pct_change"]) else None,
             })
         return result
@@ -93,22 +95,22 @@ class AnalysisService:
             f"Total sales amount to ${total:,.2f} with an average ticket of ${avg_ticket:,.2f}."
         ]
         if monthly:
-            best = max(monthly, key=lambda m: m["total"])
-            worst = min(monthly, key=lambda m: m["total"])
+            best = max(monthly, key=lambda m: m["sales"])
+            worst = min(monthly, key=lambda m: m["sales"])
             lines.append(
-                f"Best month was {best['month']} (${best['total']:,.2f}); "
-                f"lowest was {worst['month']} (${worst['total']:,.2f})."
+                f"Best month was {best['month']} (${best['sales']:,.2f}); "
+                f"lowest was {worst['month']} (${worst['sales']:,.2f})."
             )
-        growth_months = [m for m in monthly if m["pct_change"] is not None]
+        growth_months = [m for m in monthly if m["mom_pct"] is not None]
         if growth_months:
-            best_g = max(growth_months, key=lambda m: m["pct_change"])
-            if best_g["pct_change"] > 0:
+            best_g = max(growth_months, key=lambda m: m["mom_pct"])
+            if best_g["mom_pct"] > 0:
                 lines.append(
-                    f"Highest MoM growth was {best_g['month']} at +{best_g['pct_change']:.1f}%."
+                    f"Highest MoM growth was {best_g['month']} at +{best_g['mom_pct']:.1f}%."
                 )
         if top:
             lines.append(
                 f"Top product: '{top[0]['name']}' representing "
-                f"{top[0]['pct_of_total']:.1f}% of total revenue."
+                f"{top[0]['pct']:.1f}% of total revenue."
             )
         return " ".join(lines)

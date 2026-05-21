@@ -1,8 +1,8 @@
 """
 app/models/api_models.py
 ─────────────────────────
-Pydantic v2 schemas para request params y response bodies de todos los endpoints.
-Separados de dataset_models.py que contiene los DTOs de dominio interno.
+Pydantic v2 schemas para request params y response bodies.
+Campos alineados con el frontend React (charts-dashboard branch).
 """
 from pydantic import BaseModel, Field
 
@@ -24,13 +24,13 @@ class UploadResponse(BaseModel):
 class TopProduct(BaseModel):
     name: str
     total: float
-    pct_of_total: float
+    pct: float              # era pct_of_total — frontend usa pct
 
 
 class MonthlyGrowth(BaseModel):
     month: str
-    total: float
-    pct_change: float | None
+    sales: float            # era total — frontend usa sales
+    mom_pct: float | None   # era pct_change — frontend usa mom_pct
 
 
 class ChartData(BaseModel):
@@ -41,8 +41,8 @@ class ChartData(BaseModel):
 class AnomalySummary(BaseModel):
     date: str
     value: float
-    direction: str       # "spike" | "dip"
-    severity: str        # "low" | "medium" | "high"
+    direction: str          # "spike" | "dip"
+    severity: str           # "low" | "medium" | "high"
     zscore: float | None = None
 
 
@@ -60,19 +60,29 @@ class InsightsResponse(BaseModel):
 
 # ── Forecast ──────────────────────────────────────────────────────────────────
 
+class ForecastPoint(BaseModel):
+    """Un punto de la serie combinada histórico + forecast para el gráfico."""
+    date: str
+    actual: float | None    # valor real (histórico), None en periodo futuro
+    forecast: float | None  # valor predicho, None en periodo histórico
+    lower: float | None
+    upper: float | None
+
+
 class ForecastResponse(BaseModel):
     dataset_id: str
-    model: str                   # "ets" | "sarimax" | "naive"
+    model: str              # "ets" | "naive"
     horizon: int
-    aggregation: str             # "day" | "month"
+    aggregation: str        # "day" | "month"
     product: str | None
     confidence: float
-    labels: list[str]
-    values: list[float]
-    lower: list[float]
-    upper: list[float]
+    labels: list[str]       # fechas futuras
+    values: list[float]     # predicción
+    lower: list[float]      # intervalo inferior
+    upper: list[float]      # intervalo superior
     mae: float | None = None
     warnings: list[str] = []
+    series: list[ForecastPoint] = []   # combinado histórico+forecast para el chart
 
 
 # ── Simulate ──────────────────────────────────────────────────────────────────
@@ -91,14 +101,19 @@ class ScenarioResult(BaseModel):
     total_projected: float
 
 
+class SimulateModifiers(BaseModel):
+    """Objeto modifiers que espera el frontend en la respuesta."""
+    price_modifier: float
+    volume_modifier: float
+
+
 class SimulateResponse(BaseModel):
     dataset_id: str
     base: ScenarioResult
     simulated: ScenarioResult
     delta_revenue: float
     delta_pct: float
-    price_modifier: float
-    volume_modifier: float
+    modifiers: SimulateModifiers    # era price_modifier/volume_modifier sueltos
 
 
 # ── Health ────────────────────────────────────────────────────────────────────
@@ -107,5 +122,5 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     version: str
     environment: str
-    database: str          # "connected" | "unreachable"
+    database: str           # "connected" | "unreachable"
     uptime_seconds: float
