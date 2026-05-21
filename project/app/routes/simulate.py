@@ -1,7 +1,7 @@
 """POST /simulate — what-if scenario engine."""
 from fastapi import APIRouter, HTTPException
 
-from app.models.api_models import SimulateRequest, SimulateResponse, ScenarioResult
+from app.models.api_models import SimulateRequest, SimulateResponse, ScenarioResult, SimulateModifiers
 from app.models.dataset_models import DatasetStatus
 from app.repositories.dataset_repository import PostgresDatasetRepository
 from app.services.forecasting import ForecastingService
@@ -16,18 +16,13 @@ forecast_svc = ForecastingService()
 @router.post("/simulate", response_model=SimulateResponse)
 async def simulate_scenario(body: SimulateRequest):
     """
-    Simulate the impact of price/volume changes on projected sales.
-
-    Compares **base** forecast vs. **simulated** forecast and returns
-    delta revenue (absolute and %) for the requested horizon.
-
-    Example: `price_modifier=1.20, volume_modifier=0.85` simulates
-    a 20% price increase with a 15% volume drop.
+    Simula el impacto de cambios de precio/volumen sobre las ventas futuras.
+    La respuesta incluye `modifiers` como objeto anidado (alineado con frontend).
     """
     if body.price_modifier == 1.0 and body.volume_modifier == 1.0:
         raise HTTPException(
             status_code=422,
-            detail="At least one of price_modifier or volume_modifier must differ from 1.0.",
+            detail="At least one modifier must differ from 1.0.",
         )
 
     repo = PostgresDatasetRepository()
@@ -60,10 +55,20 @@ async def simulate_scenario(body: SimulateRequest):
 
     return SimulateResponse(
         dataset_id=body.dataset_id,
-        base=ScenarioResult(labels=base["labels"], values=base["values"], total_projected=base_total),
-        simulated=ScenarioResult(labels=simulated["labels"], values=simulated["values"], total_projected=sim_total),
+        base=ScenarioResult(
+            labels=base["labels"],
+            values=base["values"],
+            total_projected=base_total,
+        ),
+        simulated=ScenarioResult(
+            labels=simulated["labels"],
+            values=simulated["values"],
+            total_projected=sim_total,
+        ),
         delta_revenue=delta,
         delta_pct=delta_pct,
-        price_modifier=body.price_modifier,
-        volume_modifier=body.volume_modifier,
+        modifiers=SimulateModifiers(         # ← objeto anidado que espera el frontend
+            price_modifier=body.price_modifier,
+            volume_modifier=body.volume_modifier,
+        ),
     )

@@ -1,7 +1,10 @@
 """GET /insights — KPIs, anomalies, and narrative summary."""
 from fastapi import APIRouter, HTTPException, Query
 
-from app.models.api_models import InsightsResponse, AnomalySummary, TopProduct, MonthlyGrowth, ChartData
+from app.models.api_models import (
+    InsightsResponse, AnomalySummary, TopProduct,
+    MonthlyGrowth, ChartData
+)
 from app.models.dataset_models import DatasetStatus
 from app.repositories.dataset_repository import PostgresDatasetRepository
 from app.services.analysis import AnalysisService
@@ -18,25 +21,16 @@ anomaly_svc = AnomalyDetector()
 
 @router.get("/insights", response_model=InsightsResponse)
 async def get_insights(
-    dataset_id: str = Query(..., description="UUID from POST /upload"),
+    dataset_id: str = Query(...),
     anomaly_method: str = Query(default="zscore", pattern="^(zscore|iqr)$"),
     anomaly_threshold: float = Query(default=2.5, ge=1.0, le=5.0),
 ):
-    """
-    Compute full KPI suite for the uploaded dataset.
-
-    Returns: total sales, avg ticket, top products, monthly growth,
-    anomaly markers, natural-language summary, and chart-ready series.
-    """
     repo = PostgresDatasetRepository()
     meta = repo.get_metadata(dataset_id)
     if not meta:
         raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found.")
     if meta.status != DatasetStatus.CLEANED:
-        raise HTTPException(
-            status_code=409,
-            detail=f"Dataset status is '{meta.status}'. Only 'cleaned' datasets can be analyzed.",
-        )
+        raise HTTPException(status_code=409, detail=f"Dataset status is '{meta.status}'.")
 
     cached = cache.get("insights", dataset_id, method=anomaly_method, threshold=anomaly_threshold)
     if cached:
@@ -44,7 +38,7 @@ async def get_insights(
 
     df = repo.get_dataframe(dataset_id)
     if df is None or df.empty:
-        raise HTTPException(status_code=404, detail="No sales records found for this dataset.")
+        raise HTTPException(status_code=404, detail="No sales records found.")
 
     try:
         data = analysis_svc.compute_insights(df)
@@ -58,8 +52,22 @@ async def get_insights(
         total_sales=data["total_sales"],
         avg_ticket=data["avg_ticket"],
         total_transactions=data["total_transactions"],
-        top_products=[TopProduct(**p) for p in data["top_products"]],
-        monthly_growth=[MonthlyGrowth(**m) for m in data["monthly_growth"]],
+        top_products=[
+            TopProduct(
+                name=p["name"],
+                total=p["total"],
+                pct=p["pct"],           # ← campo correcto para el frontend
+            )
+            for p in data["top_products"]
+        ],
+        monthly_growth=[
+            MonthlyGrowth(
+                month=m["month"],
+                sales=m["sales"],       # ← campo correcto para el frontend
+                mom_pct=m["mom_pct"],   # ← campo correcto para el frontend
+            )
+            for m in data["monthly_growth"]
+        ],
         anomalies=[AnomalySummary(**a) for a in anomaly_data["anomalies"]],
         natural_summary=data["natural_summary"],
         chart_ready=ChartData(**data["chart_ready"]),
