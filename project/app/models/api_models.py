@@ -1,9 +1,4 @@
-"""
-app/models/api_models.py
-─────────────────────────
-Pydantic v2 schemas para request params y response bodies.
-Campos alineados con el frontend React (charts-dashboard branch).
-"""
+"""Pydantic v2 schemas alineados con el frontend React."""
 from pydantic import BaseModel, Field
 
 
@@ -24,13 +19,13 @@ class UploadResponse(BaseModel):
 class TopProduct(BaseModel):
     name: str
     total: float
-    pct: float              # era pct_of_total — frontend usa pct
+    pct: float
 
 
 class MonthlyGrowth(BaseModel):
     month: str
-    sales: float            # era total — frontend usa sales
-    mom_pct: float | None   # era pct_change — frontend usa mom_pct
+    sales: float
+    mom_pct: float | None
 
 
 class ChartData(BaseModel):
@@ -41,9 +36,21 @@ class ChartData(BaseModel):
 class AnomalySummary(BaseModel):
     date: str
     value: float
-    direction: str          # "spike" | "dip"
-    severity: str           # "low" | "medium" | "high"
+    direction: str
+    severity: str
     zscore: float | None = None
+
+
+class StoreInsight(BaseModel):
+    name: str
+    total: float
+    pct: float
+
+
+class StoreInsights(BaseModel):
+    top_store: StoreInsight | None
+    bottom_store: StoreInsight | None
+    all_stores: list[StoreInsight]
 
 
 class InsightsResponse(BaseModel):
@@ -56,33 +63,33 @@ class InsightsResponse(BaseModel):
     anomalies: list[AnomalySummary]
     natural_summary: str
     chart_ready: ChartData
+    store_insights: StoreInsights | None = None
 
 
 # ── Forecast ──────────────────────────────────────────────────────────────────
 
 class ForecastPoint(BaseModel):
-    """Un punto de la serie combinada histórico + forecast para el gráfico."""
     date: str
-    actual: float | None    # valor real (histórico), None en periodo futuro
-    forecast: float | None  # valor predicho, None en periodo histórico
+    actual: float | None
+    forecast: float | None
     lower: float | None
     upper: float | None
 
 
 class ForecastResponse(BaseModel):
     dataset_id: str
-    model: str              # "ets" | "naive"
+    model: str
     horizon: int
-    aggregation: str        # "day" | "month"
+    aggregation: str
     product: str | None
     confidence: float
-    labels: list[str]       # fechas futuras
-    values: list[float]     # predicción
-    lower: list[float]      # intervalo inferior
-    upper: list[float]      # intervalo superior
+    labels: list[str]
+    values: list[float]
+    lower: list[float]
+    upper: list[float]
     mae: float | None = None
     warnings: list[str] = []
-    series: list[ForecastPoint] = []   # combinado histórico+forecast para el chart
+    series: list[ForecastPoint] = []
 
 
 # ── Simulate ──────────────────────────────────────────────────────────────────
@@ -102,7 +109,6 @@ class ScenarioResult(BaseModel):
 
 
 class SimulateModifiers(BaseModel):
-    """Objeto modifiers que espera el frontend en la respuesta."""
     price_modifier: float
     volume_modifier: float
 
@@ -113,7 +119,7 @@ class SimulateResponse(BaseModel):
     simulated: ScenarioResult
     delta_revenue: float
     delta_pct: float
-    modifiers: SimulateModifiers    # era price_modifier/volume_modifier sueltos
+    modifiers: SimulateModifiers
 
 
 # ── Health ────────────────────────────────────────────────────────────────────
@@ -122,5 +128,54 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     version: str
     environment: str
-    database: str           # "connected" | "unreachable"
+    database: str
     uptime_seconds: float
+
+
+# ── Promotions ────────────────────────────────────────────────────────────────
+
+class PromoUploadResponse(BaseModel):
+    promo_id: str
+    row_count: int
+    semanas: int
+    categorias: list[str]
+    message: str = "Calendario de promociones cargado correctamente."
+
+
+class PromoRecord(BaseModel):
+    semana_fiscal: int
+    fecha_inicio: str
+    fecha_fin: str
+    tipo_promo: str        # "WkndPromo" | "OtherPromo" | "DD"
+    categoria: str
+    descripcion: str
+    md_pct: float
+
+
+class WeekPromoResponse(BaseModel):
+    promo_id: str
+    semana_fiscal: int
+    fecha_inicio: str
+    fecha_fin: str
+    wknd_promos: list[PromoRecord]
+    other_promos: list[PromoRecord]
+    daily_deals: list[PromoRecord]
+    avg_md_pct: float
+    categorias_en_promo: list[str]
+
+
+class FiscalWeekSales(BaseModel):
+    semana_fiscal: int
+    fecha_inicio: str
+    fecha_fin: str
+    total_sales: float
+    transactions: int
+    has_promo: bool
+    avg_md_pct: float
+    promos: list[PromoRecord]
+
+
+class FiscalCalendarResponse(BaseModel):
+    dataset_id: str
+    promo_id: str
+    weeks: list[FiscalWeekSales]

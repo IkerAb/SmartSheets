@@ -105,3 +105,27 @@ export async function getHealth() {
   if (USE_MOCK) return mockHealthResponse;
   return request("/health");
 }
+
+// ─── POST /promotions/upload ──────────────────────────────────────────────────
+export async function uploadPromotions(file) {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${BASE_URL}/promotions/upload`, { method: "POST", body: form });
+  if (!res.ok) throw new Error("Promotion upload failed");
+  return res.json();
+}
+
+// ─── GET /promotions/{promo_id}/calendar ─────────────────────────────────────
+export async function getFiscalCalendar({ dataset_id, promo_id } = {}) {
+  const params = new URLSearchParams({ dataset_id });
+  const res = await fetch(`${BASE_URL}/promotions/${promo_id}/calendar?${params}`);
+  if (!res.ok) throw new Error("Failed to load fiscal calendar");
+  return res.json();
+}
+
+// ─── GET /promotions/{promo_id}/week/{semana} ─────────────────────────────────
+export async function getWeekPromotions({ promo_id, semana } = {}) {
+  const res = await fetch(`${BASE_URL}/promotions/${promo_id}/week/${semana}`);
+  if (!res.ok) throw new Error("Failed to load week promotions");
+  return res.json();
+}
