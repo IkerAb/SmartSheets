@@ -179,3 +179,33 @@ class FiscalCalendarResponse(BaseModel):
     dataset_id: str
     promo_id: str
     weeks: list[FiscalWeekSales]
+
+
+# ── Inventory / Sell-Through ──────────────────────────────────────────────────
+
+class InventoryUploadResponse(BaseModel):
+    inventory_id: str
+    row_count: int
+    semanas: int
+    categorias: list[str]
+    message: str = "Inventario cargado correctamente."
+
+
+class SellThroughRow(BaseModel):
+    categoria: str
+    inventario_inicial: int
+    unidades_vendidas: int
+    sell_through_pct: float
+    nivel: str          # "alto" | "medio" | "bajo"
+    tiene_promo: bool
+    tipo_promos: list[str]
+    md_promedio: float
+    insight: str
+
+
+class SellThroughResponse(BaseModel):
+    inventory_id: str
+    promo_id: str | None
+    semana_fiscal: int | None
+    rows: list[SellThroughRow]
+    resumen: str
