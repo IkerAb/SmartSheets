@@ -1,10 +1,8 @@
 // src/components/layout/DashboardLayout.jsx
 const navItems = [
-  { id: "dashboard", label: "Dashboard",   icon: "▦" },
-  { id: "forecast",  label: "Forecast",    icon: "⟋" },
-  { id: "simulate",  label: "Simulate",    icon: "⧖" },
-  { id: "calendar",  label: "Calendario",  icon: "📅" },
-  { id: "upload",    label: "Upload Data", icon: "↑" },
+  { id: "kpis",     label: "KPIs",         icon: "▦" },
+  { id: "calendar", label: "Calendario",   icon: "📅" },
+  { id: "upload",   label: "Upload Data",  icon: "↑" },
 ];
 
 export default function DashboardLayout({ activePage, onNavigate, children, datasetId, promoId, health }) {
@@ -21,7 +19,7 @@ export default function DashboardLayout({ activePage, onNavigate, children, data
 
         <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
           {navItems.map((item) => {
-            const active = activePage === item.id;
+            const active = activePage === item.id || (item.id === "kpis" && ["dashboard","forecast","simulate"].includes(activePage));
             return (
               <button
                 key={item.id}
@@ -45,14 +43,10 @@ export default function DashboardLayout({ activePage, onNavigate, children, data
             <span className="text-slate-500">{dbOk ? "DB connected" : "DB unreachable"}</span>
           </div>
           {datasetId && (
-            <p className="text-slate-600 text-xs font-mono truncate">
-              📂 {datasetId.slice(0, 12)}…
-            </p>
+            <p className="text-slate-600 text-xs font-mono truncate">📂 {datasetId.slice(0, 12)}…</p>
           )}
           {promoId && (
-            <p className="text-slate-600 text-xs font-mono truncate mt-1">
-              📅 {promoId.slice(0, 12)}…
-            </p>
+            <p className="text-slate-600 text-xs font-mono truncate mt-1">📅 {promoId.slice(0, 12)}…</p>
           )}
           {health?.version && (
             <p className="text-slate-700 text-xs mt-1">v{health.version}</p>
@@ -63,7 +57,9 @@ export default function DashboardLayout({ activePage, onNavigate, children, data
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 border-b border-slate-800 bg-slate-900/50 backdrop-blur flex items-center justify-between px-6 flex-shrink-0">
-          <span className="text-slate-200 font-semibold capitalize">{activePage}</span>
+          <span className="text-slate-200 font-semibold capitalize">
+            {activePage === "kpis" ? "KPIs" : activePage}
+          </span>
           <div className="flex items-center gap-3 text-xs text-slate-500">
             {datasetId ? (
               <span className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 font-mono text-slate-400">
