@@ -1,8 +1,9 @@
 // src/pages/FiscalCalendarPage.jsx
 import { useEffect, useState } from "react";
-import { getFiscalCalendar } from "../services/api";
+import { getFiscalCalendar, getSellThrough } from "../services/api";
 import FiscalCalendarChart from "../components/charts/FiscalCalendarChart";
 import WeekPromoDetail from "../components/ui/WeekPromoDetail";
+import SellThroughTable from "../components/ui/SellThroughTable";
 
 function Spinner() {
   return (
@@ -12,11 +13,13 @@ function Spinner() {
   );
 }
 
-export default function FiscalCalendarPage({ datasetId, promoId }) {
+export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) {
   const [weeks, setWeeks]               = useState([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState(null);
   const [selectedWeek, setSelectedWeek] = useState(null);
+  const [stData, setStData]             = useState(null);
+  const [stLoading, setStLoading]       = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -38,6 +41,27 @@ export default function FiscalCalendarPage({ datasetId, promoId }) {
     }
     load();
   }, [datasetId, promoId]);
+
+  // cargar ST cuando cambia la semana seleccionada
+  useEffect(() => {
+    async function loadST() {
+      if (!inventoryId || !selectedWeek) return;
+      setStLoading(true);
+      try {
+        const data = await getSellThrough({
+          inventory_id: inventoryId,
+          semana: selectedWeek.semana_fiscal,
+          promo_id: promoId,
+        });
+        setStData(data);
+      } catch (e) {
+        setStData(null);
+      } finally {
+        setStLoading(false);
+      }
+    }
+    loadST();
+  }, [selectedWeek, inventoryId, promoId]);
 
   if (!datasetId || !promoId) {
     return (
@@ -100,16 +124,12 @@ export default function FiscalCalendarPage({ datasetId, promoId }) {
         onSelectWeek={setSelectedWeek}
       />
 
-      {/* Selector de semana + detalle */}
+      {/* Selector + detalle + ST */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-        {/* Selector + detalle de promo */}
         <div className="flex flex-col gap-3">
-          {/* Dropdown selector */}
+          {/* Dropdown */}
           <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4">
-            <label className="text-slate-400 text-sm font-medium whitespace-nowrap">
-              Ver semana:
-            </label>
+            <label className="text-slate-400 text-sm font-medium whitespace-nowrap">Ver semana:</label>
             <select
               value={selectedWeek?.semana_fiscal ?? ""}
               onChange={(e) => {
@@ -125,8 +145,6 @@ export default function FiscalCalendarPage({ datasetId, promoId }) {
               ))}
             </select>
           </div>
-
-          {/* Detalle de la semana */}
           <WeekPromoDetail week={selectedWeek} />
         </div>
 
@@ -158,15 +176,36 @@ export default function FiscalCalendarPage({ datasetId, promoId }) {
                     <p className="text-white text-xs font-semibold tabular-nums">
                       ${w.total_sales.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                     </p>
-                    {w.has_promo && (
-                      <p className="text-amber-400 text-xs">MD {w.avg_md_pct}%</p>
-                    )}
+                    {w.has_promo && <p className="text-amber-400 text-xs">MD {w.avg_md_pct}%</p>}
                   </div>
                 </div>
               ))}
           </div>
         </div>
       </div>
+
+      {/* Sell-Through */}
+      {inventoryId && (
+        stLoading
+          ? <div className="flex items-center gap-3 text-slate-500 text-sm px-2">
+              <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              Calculando Sell-Through…
+            </div>
+          : stData && (
+              <SellThroughTable
+                data={stData.rows}
+                resumen={stData.resumen}
+                semana={selectedWeek?.semana_fiscal}
+              />
+            )
+      )}
+
+      {/* Aviso si no hay inventario */}
+      {!inventoryId && (
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl px-5 py-4 text-sm text-amber-300">
+          💡 Sube un archivo de inventario en <strong>Upload Data</strong> para ver el Sell-Through por semana.
+        </div>
+      )}
 
     </div>
   );

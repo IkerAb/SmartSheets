@@ -129,3 +129,22 @@ export async function getWeekPromotions({ promo_id, semana } = {}) {
   if (!res.ok) throw new Error("Failed to load week promotions");
   return res.json();
 }
+
+// ─── POST /inventory/upload ───────────────────────────────────────────────────
+export async function uploadInventory(file) {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${BASE_URL}/inventory/upload`, { method: "POST", body: form });
+  if (!res.ok) throw new Error("Inventory upload failed");
+  return res.json();
+}
+
+// ─── GET /inventory/{id}/sellthrough ─────────────────────────────────────────
+export async function getSellThrough({ inventory_id, semana, promo_id } = {}) {
+  const params = new URLSearchParams();
+  if (semana) params.append("semana", semana);
+  if (promo_id) params.append("promo_id", promo_id);
+  const res = await fetch(`${BASE_URL}/inventory/${inventory_id}/sellthrough?${params}`);
+  if (!res.ok) throw new Error("Failed to load sell-through");
+  return res.json();
+}

@@ -3,9 +3,8 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import ForecastDashboard from "./pages/ForecastDashboard";
 import FiscalCalendarPage from "./pages/FiscalCalendarPage";
-import { getHealth, uploadDataset, uploadPromotions } from "./services/api";
+import { getHealth, uploadDataset, uploadPromotions, uploadInventory } from "./services/api";
 
-// ── Tabs de KPIs ──────────────────────────────────────────────────────────────
 const KPI_TABS = [
   { id: "dashboard", label: "Dashboard" },
   { id: "forecast",  label: "Forecast"  },
@@ -32,95 +31,111 @@ function KPITabs({ activeTab, onTabChange }) {
   );
 }
 
-// ── Upload page ───────────────────────────────────────────────────────────────
-function UploadPage({ onDatasetLoaded, onPromoLoaded, datasetId, promoId }) {
-  const [uploadingDataset, setUploadingDataset] = useState(false);
-  const [uploadingPromo, setUploadingPromo]     = useState(false);
-  const [msgDataset, setMsgDataset]             = useState(null);
-  const [msgPromo, setMsgPromo]                 = useState(null);
+function UploadCard({ icon, title, desc, activeId, onUpload, uploading, msg, color = "indigo", buttonLabel }) {
+  const colors = {
+    indigo: "bg-indigo-600 hover:bg-indigo-500",
+    amber:  "bg-amber-600 hover:bg-amber-500",
+    emerald:"bg-emerald-600 hover:bg-emerald-500",
+  };
+  return (
+    <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 w-full text-center">
+      <div className="text-4xl mb-3">{icon}</div>
+      <h2 className="text-slate-200 text-lg font-semibold mb-1">{title}</h2>
+      <p className="text-slate-500 text-xs mb-5">{desc}</p>
+      {activeId && <p className="text-emerald-400 text-xs mb-3 font-mono">Activo: {activeId.slice(0, 8)}…</p>}
+      <label className={`block cursor-pointer ${colors[color]} text-white rounded-xl px-6 py-3 text-sm font-medium transition-colors`}>
+        {uploading ? "Cargando…" : buttonLabel}
+        <input type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={onUpload} disabled={uploading} />
+      </label>
+      {msg && (
+        <div className={`mt-3 rounded-xl px-4 py-3 text-xs ${
+          msg.type === "success"
+            ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
+            : "bg-rose-500/10 border border-rose-500/20 text-rose-300"
+        }`}>{msg.text}</div>
+      )}
+    </div>
+  );
+}
+
+function UploadPage({ onDatasetLoaded, onPromoLoaded, onInventoryLoaded, datasetId, promoId, inventoryId }) {
+  const [uploadingDataset,   setUploadingDataset]   = useState(false);
+  const [uploadingPromo,     setUploadingPromo]     = useState(false);
+  const [uploadingInventory, setUploadingInventory] = useState(false);
+  const [msgDataset,   setMsgDataset]   = useState(null);
+  const [msgPromo,     setMsgPromo]     = useState(null);
+  const [msgInventory, setMsgInventory] = useState(null);
 
   async function handleDataset(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingDataset(true);
-    setMsgDataset(null);
+    setUploadingDataset(true); setMsgDataset(null);
     try {
       const res = await uploadDataset(file);
       setMsgDataset({ type: "success", text: `✅ ${res.row_count} filas · ${res.products.length} categorías · ${res.date_range[0]} → ${res.date_range[1]}` });
       onDatasetLoaded(res.dataset_id);
     } catch (err) {
       setMsgDataset({ type: "error", text: err.message });
-    } finally {
-      setUploadingDataset(false);
-    }
+    } finally { setUploadingDataset(false); }
   }
 
   async function handlePromo(e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingPromo(true);
-    setMsgPromo(null);
+    setUploadingPromo(true); setMsgPromo(null);
     try {
       const res = await uploadPromotions(file);
-      setMsgPromo({ type: "success", text: `✅ ${res.row_count} promos · ${res.semanas} semanas · ${res.categorias.length} categorías` });
+      setMsgPromo({ type: "success", text: `✅ ${res.row_count} promos · ${res.semanas} semanas` });
       onPromoLoaded(res.promo_id);
     } catch (err) {
       setMsgPromo({ type: "error", text: err.message });
-    } finally {
-      setUploadingPromo(false);
-    }
+    } finally { setUploadingPromo(false); }
+  }
+
+  async function handleInventory(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingInventory(true); setMsgInventory(null);
+    try {
+      const res = await uploadInventory(file);
+      setMsgInventory({ type: "success", text: `✅ ${res.row_count} registros · ${res.semanas} semanas · ${res.categorias.length} categorías` });
+      onInventoryLoaded(res.inventory_id);
+    } catch (err) {
+      setMsgInventory({ type: "error", text: err.message });
+    } finally { setUploadingInventory(false); }
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-6 max-w-lg mx-auto">
-      {/* Dataset */}
-      <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 w-full text-center">
-        <div className="text-4xl mb-3">📂</div>
-        <h2 className="text-slate-200 text-lg font-semibold mb-1">Archivo de Ventas</h2>
-        <p className="text-slate-500 text-xs mb-5">CSV o Excel con columnas: fecha, producto, tienda, ventas</p>
-        {datasetId && <p className="text-emerald-400 text-xs mb-3 font-mono">Activo: {datasetId.slice(0, 8)}…</p>}
-        <label className="block cursor-pointer bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 py-3 text-sm font-medium transition-colors">
-          {uploadingDataset ? "Cargando…" : "Subir ventas"}
-          <input type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleDataset} disabled={uploadingDataset} />
-        </label>
-        {msgDataset && (
-          <div className={`mt-3 rounded-xl px-4 py-3 text-xs ${
-            msgDataset.type === "success"
-              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
-              : "bg-rose-500/10 border border-rose-500/20 text-rose-300"
-          }`}>{msgDataset.text}</div>
-        )}
-      </div>
-
-      {/* Promos */}
-      <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 w-full text-center">
-        <div className="text-4xl mb-3">📅</div>
-        <h2 className="text-slate-200 text-lg font-semibold mb-1">Calendario de Promociones</h2>
-        <p className="text-slate-500 text-xs mb-5">CSV con columnas: semana_fiscal, fecha_inicio, fecha_fin, tipo_promo, categoria, descripcion, md_pct</p>
-        {promoId && <p className="text-emerald-400 text-xs mb-3 font-mono">Activo: {promoId.slice(0, 8)}…</p>}
-        <label className="block cursor-pointer bg-amber-600 hover:bg-amber-500 text-white rounded-xl px-6 py-3 text-sm font-medium transition-colors">
-          {uploadingPromo ? "Cargando…" : "Subir calendario"}
-          <input type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handlePromo} disabled={uploadingPromo} />
-        </label>
-        {msgPromo && (
-          <div className={`mt-3 rounded-xl px-4 py-3 text-xs ${
-            msgPromo.type === "success"
-              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
-              : "bg-rose-500/10 border border-rose-500/20 text-rose-300"
-          }`}>{msgPromo.text}</div>
-        )}
-      </div>
+    <div className="flex flex-col items-center justify-center py-8 gap-5 max-w-lg mx-auto">
+      <UploadCard
+        icon="📂" title="Archivo de Ventas" color="indigo"
+        desc="CSV o Excel con columnas: fecha, producto, tienda, ventas"
+        activeId={datasetId} uploading={uploadingDataset} msg={msgDataset}
+        onUpload={handleDataset} buttonLabel="Subir ventas"
+      />
+      <UploadCard
+        icon="📅" title="Calendario de Promociones" color="amber"
+        desc="CSV con columnas: semana_fiscal, fecha_inicio, fecha_fin, tipo_promo, categoria, descripcion, md_pct"
+        activeId={promoId} uploading={uploadingPromo} msg={msgPromo}
+        onUpload={handlePromo} buttonLabel="Subir calendario"
+      />
+      <UploadCard
+        icon="📦" title="Inventario Semanal" color="emerald"
+        desc="CSV con columnas: semana_fiscal, categoria, tienda, inventario_inicial, unidades_vendidas"
+        activeId={inventoryId} uploading={uploadingInventory} msg={msgInventory}
+        onUpload={handleInventory} buttonLabel="Subir inventario"
+      />
     </div>
   );
 }
 
-// ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [activePage, setActivePage] = useState("kpis");
-  const [activeTab, setActiveTab]   = useState("dashboard");
-  const [datasetId, setDatasetId]   = useState(null);
-  const [promoId, setPromoId]       = useState(null);
-  const [health, setHealth]         = useState(null);
+  const [activePage,   setActivePage]   = useState("kpis");
+  const [activeTab,    setActiveTab]    = useState("dashboard");
+  const [datasetId,    setDatasetId]    = useState(null);
+  const [promoId,      setPromoId]      = useState(null);
+  const [inventoryId,  setInventoryId]  = useState(null);
+  const [health,       setHealth]       = useState(null);
 
   useEffect(() => {
     getHealth().then(setHealth).catch(() => null);
@@ -141,14 +156,22 @@ export default function App() {
           </div>
         );
       case "calendar":
-        return <FiscalCalendarPage datasetId={datasetId} promoId={promoId} />;
+        return (
+          <FiscalCalendarPage
+            datasetId={datasetId}
+            promoId={promoId}
+            inventoryId={inventoryId}
+          />
+        );
       case "upload":
         return (
           <UploadPage
             onDatasetLoaded={(id) => { setDatasetId(id); setActivePage("kpis"); }}
             onPromoLoaded={(id) => setPromoId(id)}
+            onInventoryLoaded={(id) => setInventoryId(id)}
             datasetId={datasetId}
             promoId={promoId}
+            inventoryId={inventoryId}
           />
         );
       default:
@@ -162,6 +185,7 @@ export default function App() {
       onNavigate={handleNavigate}
       datasetId={datasetId}
       promoId={promoId}
+      inventoryId={inventoryId}
       health={health}
     >
       {renderPage()}
