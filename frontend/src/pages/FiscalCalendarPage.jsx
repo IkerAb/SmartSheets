@@ -1,9 +1,10 @@
 // src/pages/FiscalCalendarPage.jsx
 import { useEffect, useState } from "react";
-import { getFiscalCalendar, getSellThrough } from "../services/api";
+import { getFiscalCalendar, getSellThrough, getTrafficConversion } from "../services/api";
 import FiscalCalendarChart from "../components/charts/FiscalCalendarChart";
 import WeekPromoDetail from "../components/ui/WeekPromoDetail";
 import SellThroughTable from "../components/ui/SellThroughTable";
+import TrafficConversionChart from "../components/charts/TrafficConversionChart";
 
 function Spinner() {
   return (
@@ -13,13 +14,15 @@ function Spinner() {
   );
 }
 
-export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) {
+export default function FiscalCalendarPage({ datasetId, promoId, inventoryId, trafficId }) {
   const [weeks, setWeeks]               = useState([]);
   const [loading, setLoading]           = useState(true);
   const [error, setError]               = useState(null);
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [stData, setStData]             = useState(null);
   const [stLoading, setStLoading]       = useState(false);
+  const [trafficData, setTrafficData]   = useState(null);
+  const [trafficLoading, setTrafficLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -42,7 +45,6 @@ export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) 
     load();
   }, [datasetId, promoId]);
 
-  // cargar ST cuando cambia la semana seleccionada
   useEffect(() => {
     async function loadST() {
       if (!inventoryId || !selectedWeek) return;
@@ -62,6 +64,25 @@ export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) 
     }
     loadST();
   }, [selectedWeek, inventoryId, promoId]);
+
+  useEffect(() => {
+    async function loadTraffic() {
+      if (!trafficId || !selectedWeek) return;
+      setTrafficLoading(true);
+      try {
+        const data = await getTrafficConversion({
+          traffic_id: trafficId,
+          semana: selectedWeek.semana_fiscal,
+        });
+        setTrafficData(data);
+      } catch (e) {
+        setTrafficData(null);
+      } finally {
+        setTrafficLoading(false);
+      }
+    }
+    loadTraffic();
+  }, [selectedWeek, trafficId]);
 
   if (!datasetId || !promoId) {
     return (
@@ -117,17 +138,16 @@ export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) 
         </div>
       </div>
 
-      {/* Gráfica */}
+      {/* Gráfica semanas */}
       <FiscalCalendarChart
         weeks={weeks}
         selectedWeek={selectedWeek}
         onSelectWeek={setSelectedWeek}
       />
 
-      {/* Selector + detalle + ST */}
+      {/* Selector + detalle + top5 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="flex flex-col gap-3">
-          {/* Dropdown */}
           <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4">
             <label className="text-slate-400 text-sm font-medium whitespace-nowrap">Ver semana:</label>
             <select
@@ -148,7 +168,6 @@ export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) 
           <WeekPromoDetail week={selectedWeek} />
         </div>
 
-        {/* Top 5 semanas */}
         <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-5">
           <h3 className="text-slate-300 text-sm font-semibold mb-4">Top 5 Semanas por Ventas</h3>
           <div className="flex flex-col gap-2">
@@ -185,7 +204,7 @@ export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) 
       </div>
 
       {/* Sell-Through */}
-      {inventoryId && (
+      {inventoryId ? (
         stLoading
           ? <div className="flex items-center gap-3 text-slate-500 text-sm px-2">
               <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -198,12 +217,31 @@ export default function FiscalCalendarPage({ datasetId, promoId, inventoryId }) 
                 semana={selectedWeek?.semana_fiscal}
               />
             )
+      ) : (
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl px-5 py-4 text-sm text-amber-300">
+          💡 Sube un archivo de inventario en <strong>Upload Data</strong> para ver el Sell-Through.
+        </div>
       )}
 
-      {/* Aviso si no hay inventario */}
-      {!inventoryId && (
-        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl px-5 py-4 text-sm text-amber-300">
-          💡 Sube un archivo de inventario en <strong>Upload Data</strong> para ver el Sell-Through por semana.
+      {/* Tráfico y Conversión */}
+      {trafficId ? (
+        trafficLoading
+          ? <div className="flex items-center gap-3 text-slate-500 text-sm px-2">
+              <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
+              Cargando tráfico y conversión…
+            </div>
+          : trafficData && (
+              <TrafficConversionChart
+                data={trafficData.rows}
+                avgConversion={trafficData.avg_conversion}
+                bestStore={trafficData.best_store}
+                worstStore={trafficData.worst_store}
+                semana={selectedWeek?.semana_fiscal}
+              />
+            )
+      ) : (
+        <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl px-5 py-4 text-sm text-indigo-300">
+          💡 Sube un archivo de tráfico en <strong>Upload Data</strong> para ver la tasa de conversión por tienda.
         </div>
       )}
 

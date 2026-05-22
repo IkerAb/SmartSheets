@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import ForecastDashboard from "./pages/ForecastDashboard";
 import FiscalCalendarPage from "./pages/FiscalCalendarPage";
-import { getHealth, uploadDataset, uploadPromotions, uploadInventory } from "./services/api";
+import { getHealth, uploadDataset, uploadPromotions, uploadInventory, uploadTraffic } from "./services/api";
 
 const KPI_TABS = [
   { id: "dashboard", label: "Dashboard" },
@@ -33,12 +33,13 @@ function KPITabs({ activeTab, onTabChange }) {
 
 function UploadCard({ icon, title, desc, activeId, onUpload, uploading, msg, color = "indigo", buttonLabel }) {
   const colors = {
-    indigo: "bg-indigo-600 hover:bg-indigo-500",
-    amber:  "bg-amber-600 hover:bg-amber-500",
-    emerald:"bg-emerald-600 hover:bg-emerald-500",
+    indigo:  "bg-indigo-600 hover:bg-indigo-500",
+    amber:   "bg-amber-600 hover:bg-amber-500",
+    emerald: "bg-emerald-600 hover:bg-emerald-500",
+    cyan:    "bg-cyan-600 hover:bg-cyan-500",
   };
   return (
-    <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 w-full text-center">
+    <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-6 w-full text-center">
       <div className="text-4xl mb-3">{icon}</div>
       <h2 className="text-slate-200 text-lg font-semibold mb-1">{title}</h2>
       <p className="text-slate-500 text-xs mb-5">{desc}</p>
@@ -58,84 +59,76 @@ function UploadCard({ icon, title, desc, activeId, onUpload, uploading, msg, col
   );
 }
 
-function UploadPage({ onDatasetLoaded, onPromoLoaded, onInventoryLoaded, datasetId, promoId, inventoryId }) {
-  const [uploadingDataset,   setUploadingDataset]   = useState(false);
-  const [uploadingPromo,     setUploadingPromo]     = useState(false);
-  const [uploadingInventory, setUploadingInventory] = useState(false);
-  const [msgDataset,   setMsgDataset]   = useState(null);
-  const [msgPromo,     setMsgPromo]     = useState(null);
-  const [msgInventory, setMsgInventory] = useState(null);
+function UploadPage({ onDatasetLoaded, onPromoLoaded, onInventoryLoaded, onTrafficLoaded,
+                      datasetId, promoId, inventoryId, trafficId }) {
+  const [states, setStates] = useState({
+    uploadingDataset: false, uploadingPromo: false,
+    uploadingInventory: false, uploadingTraffic: false,
+    msgDataset: null, msgPromo: null, msgInventory: null, msgTraffic: null,
+  });
 
-  async function handleDataset(e) {
+  function set(key, val) { setStates(s => ({ ...s, [key]: val })); }
+
+  async function handle(uploadFn, loadingKey, msgKey, onLoaded, e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploadingDataset(true); setMsgDataset(null);
+    set(loadingKey, true); set(msgKey, null);
     try {
-      const res = await uploadDataset(file);
-      setMsgDataset({ type: "success", text: `✅ ${res.row_count} filas · ${res.products.length} categorías · ${res.date_range[0]} → ${res.date_range[1]}` });
-      onDatasetLoaded(res.dataset_id);
+      const res = await uploadFn(file);
+      const text = res.row_count
+        ? `✅ ${res.row_count} registros cargados correctamente`
+        : "✅ Cargado correctamente";
+      set(msgKey, { type: "success", text });
+      onLoaded(res[Object.keys(res).find(k => k.endsWith("_id"))]);
     } catch (err) {
-      setMsgDataset({ type: "error", text: err.message });
-    } finally { setUploadingDataset(false); }
-  }
-
-  async function handlePromo(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingPromo(true); setMsgPromo(null);
-    try {
-      const res = await uploadPromotions(file);
-      setMsgPromo({ type: "success", text: `✅ ${res.row_count} promos · ${res.semanas} semanas` });
-      onPromoLoaded(res.promo_id);
-    } catch (err) {
-      setMsgPromo({ type: "error", text: err.message });
-    } finally { setUploadingPromo(false); }
-  }
-
-  async function handleInventory(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploadingInventory(true); setMsgInventory(null);
-    try {
-      const res = await uploadInventory(file);
-      setMsgInventory({ type: "success", text: `✅ ${res.row_count} registros · ${res.semanas} semanas · ${res.categorias.length} categorías` });
-      onInventoryLoaded(res.inventory_id);
-    } catch (err) {
-      setMsgInventory({ type: "error", text: err.message });
-    } finally { setUploadingInventory(false); }
+      set(msgKey, { type: "error", text: err.message });
+    } finally {
+      set(loadingKey, false);
+    }
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-8 gap-5 max-w-lg mx-auto">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 max-w-3xl mx-auto py-8">
       <UploadCard
-        icon="📂" title="Archivo de Ventas" color="indigo"
-        desc="CSV o Excel con columnas: fecha, producto, tienda, ventas"
-        activeId={datasetId} uploading={uploadingDataset} msg={msgDataset}
-        onUpload={handleDataset} buttonLabel="Subir ventas"
+        icon="📂" title="Ventas" color="indigo"
+        desc="fecha, producto, tienda, ventas"
+        activeId={datasetId} uploading={states.uploadingDataset} msg={states.msgDataset}
+        onUpload={(e) => handle(uploadDataset, "uploadingDataset", "msgDataset", onDatasetLoaded, e)}
+        buttonLabel="Subir ventas"
       />
       <UploadCard
-        icon="📅" title="Calendario de Promociones" color="amber"
-        desc="CSV con columnas: semana_fiscal, fecha_inicio, fecha_fin, tipo_promo, categoria, descripcion, md_pct"
-        activeId={promoId} uploading={uploadingPromo} msg={msgPromo}
-        onUpload={handlePromo} buttonLabel="Subir calendario"
+        icon="📅" title="Promociones" color="amber"
+        desc="semana_fiscal, fecha_inicio, fecha_fin, tipo_promo, categoria, descripcion, md_pct"
+        activeId={promoId} uploading={states.uploadingPromo} msg={states.msgPromo}
+        onUpload={(e) => handle(uploadPromotions, "uploadingPromo", "msgPromo", onPromoLoaded, e)}
+        buttonLabel="Subir calendario"
       />
       <UploadCard
-        icon="📦" title="Inventario Semanal" color="emerald"
-        desc="CSV con columnas: semana_fiscal, categoria, tienda, inventario_inicial, unidades_vendidas"
-        activeId={inventoryId} uploading={uploadingInventory} msg={msgInventory}
-        onUpload={handleInventory} buttonLabel="Subir inventario"
+        icon="📦" title="Inventario" color="emerald"
+        desc="semana_fiscal, categoria, tienda, inventario_inicial, unidades_vendidas"
+        activeId={inventoryId} uploading={states.uploadingInventory} msg={states.msgInventory}
+        onUpload={(e) => handle(uploadInventory, "uploadingInventory", "msgInventory", onInventoryLoaded, e)}
+        buttonLabel="Subir inventario"
+      />
+      <UploadCard
+        icon="🚶" title="Tráfico" color="cyan"
+        desc="semana_fiscal, tienda, trafico, transacciones, tasa_conversion_pct"
+        activeId={trafficId} uploading={states.uploadingTraffic} msg={states.msgTraffic}
+        onUpload={(e) => handle(uploadTraffic, "uploadingTraffic", "msgTraffic", onTrafficLoaded, e)}
+        buttonLabel="Subir tráfico"
       />
     </div>
   );
 }
 
 export default function App() {
-  const [activePage,   setActivePage]   = useState("kpis");
-  const [activeTab,    setActiveTab]    = useState("dashboard");
-  const [datasetId,    setDatasetId]    = useState(null);
-  const [promoId,      setPromoId]      = useState(null);
-  const [inventoryId,  setInventoryId]  = useState(null);
-  const [health,       setHealth]       = useState(null);
+  const [activePage,  setActivePage]  = useState("kpis");
+  const [activeTab,   setActiveTab]   = useState("dashboard");
+  const [datasetId,   setDatasetId]   = useState(null);
+  const [promoId,     setPromoId]     = useState(null);
+  const [inventoryId, setInventoryId] = useState(null);
+  const [trafficId,   setTrafficId]   = useState(null);
+  const [health,      setHealth]      = useState(null);
 
   useEffect(() => {
     getHealth().then(setHealth).catch(() => null);
@@ -161,17 +154,20 @@ export default function App() {
             datasetId={datasetId}
             promoId={promoId}
             inventoryId={inventoryId}
+            trafficId={trafficId}
           />
         );
       case "upload":
         return (
           <UploadPage
             onDatasetLoaded={(id) => { setDatasetId(id); setActivePage("kpis"); }}
-            onPromoLoaded={(id) => setPromoId(id)}
-            onInventoryLoaded={(id) => setInventoryId(id)}
+            onPromoLoaded={setPromoId}
+            onInventoryLoaded={setInventoryId}
+            onTrafficLoaded={setTrafficId}
             datasetId={datasetId}
             promoId={promoId}
             inventoryId={inventoryId}
+            trafficId={trafficId}
           />
         );
       default:
@@ -186,6 +182,7 @@ export default function App() {
       datasetId={datasetId}
       promoId={promoId}
       inventoryId={inventoryId}
+      trafficId={trafficId}
       health={health}
     >
       {renderPage()}

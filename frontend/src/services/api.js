@@ -148,3 +148,21 @@ export async function getSellThrough({ inventory_id, semana, promo_id } = {}) {
   if (!res.ok) throw new Error("Failed to load sell-through");
   return res.json();
 }
+
+// ─── POST /traffic/upload ─────────────────────────────────────────────────────
+export async function uploadTraffic(file) {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${BASE_URL}/traffic/upload`, { method: "POST", body: form });
+  if (!res.ok) throw new Error("Traffic upload failed");
+  return res.json();
+}
+
+// ─── GET /traffic/{id}/conversion ────────────────────────────────────────────
+export async function getTrafficConversion({ traffic_id, semana } = {}) {
+  const params = new URLSearchParams();
+  if (semana) params.append("semana", semana);
+  const res = await fetch(`${BASE_URL}/traffic/${traffic_id}/conversion?${params}`);
+  if (!res.ok) throw new Error("Failed to load traffic conversion");
+  return res.json();
+}

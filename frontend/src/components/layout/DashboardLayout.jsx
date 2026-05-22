@@ -5,7 +5,7 @@ const navItems = [
   { id: "upload",   label: "Upload Data", icon: "↑" },
 ];
 
-export default function DashboardLayout({ activePage, onNavigate, children, datasetId, promoId, inventoryId, health }) {
+export default function DashboardLayout({ activePage, onNavigate, children, datasetId, promoId, inventoryId, trafficId, health }) {
   const dbOk = health?.database === "connected";
 
   return (
@@ -41,9 +41,10 @@ export default function DashboardLayout({ activePage, onNavigate, children, data
             <span className={`w-2 h-2 rounded-full ${dbOk ? "bg-emerald-400" : "bg-rose-400"}`} />
             <span className="text-slate-500">{dbOk ? "DB connected" : "DB unreachable"}</span>
           </div>
-          {datasetId && <p className="text-slate-600 text-xs font-mono truncate">📂 {datasetId.slice(0, 12)}…</p>}
-          {promoId && <p className="text-slate-600 text-xs font-mono truncate">📅 {promoId.slice(0, 12)}…</p>}
+          {datasetId   && <p className="text-slate-600 text-xs font-mono truncate">📂 {datasetId.slice(0, 12)}…</p>}
+          {promoId     && <p className="text-slate-600 text-xs font-mono truncate">📅 {promoId.slice(0, 12)}…</p>}
           {inventoryId && <p className="text-slate-600 text-xs font-mono truncate">📦 {inventoryId.slice(0, 12)}…</p>}
+          {trafficId   && <p className="text-slate-600 text-xs font-mono truncate">🚶 {trafficId.slice(0, 12)}…</p>}
           {health?.version && <p className="text-slate-700 text-xs mt-1">v{health.version}</p>}
         </div>
       </aside>
@@ -53,13 +54,14 @@ export default function DashboardLayout({ activePage, onNavigate, children, data
           <span className="text-slate-200 font-semibold capitalize">
             {activePage === "kpis" ? "KPIs" : activePage}
           </span>
-          <div className="flex items-center gap-2 text-xs text-slate-500 flex-wrap justify-end">
+          <div className="flex items-center gap-2 text-xs flex-wrap justify-end">
             {datasetId
-              ? <span className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 font-mono text-slate-400">dataset: <span className="text-indigo-400">{datasetId.slice(0, 8)}…</span></span>
-              : <span className="text-amber-500/80">No dataset</span>
+              ? <span className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-slate-400">📂 <span className="text-indigo-400">{datasetId.slice(0, 8)}…</span></span>
+              : <span className="text-amber-500/80 text-xs">No dataset</span>
             }
-            {promoId && <span className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 font-mono text-slate-400">promos: <span className="text-amber-400">{promoId.slice(0, 8)}…</span></span>}
-            {inventoryId && <span className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 font-mono text-slate-400">inv: <span className="text-emerald-400">{inventoryId.slice(0, 8)}…</span></span>}
+            {promoId     && <span className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-slate-400">📅 <span className="text-amber-400">{promoId.slice(0, 8)}…</span></span>}
+            {inventoryId && <span className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-slate-400">📦 <span className="text-emerald-400">{inventoryId.slice(0, 8)}…</span></span>}
+            {trafficId   && <span className="bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 font-mono text-slate-400">🚶 <span className="text-cyan-400">{trafficId.slice(0, 8)}…</span></span>}
           </div>
         </header>
 
