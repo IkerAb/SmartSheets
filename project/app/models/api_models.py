@@ -209,3 +209,32 @@ class SellThroughResponse(BaseModel):
     semana_fiscal: int | None
     rows: list[SellThroughRow]
     resumen: str
+
+
+# ── Traffic / Conversion Rate ─────────────────────────────────────────────────
+
+class TrafficUploadResponse(BaseModel):
+    traffic_id: str
+    row_count: int
+    semanas: int
+    tiendas: list[str]
+    message: str = "Tráfico cargado correctamente."
+
+
+class StoreTrafficRow(BaseModel):
+    tienda: str
+    trafico_total: int
+    transacciones_total: int
+    tasa_conversion_pct: float
+    vs_promedio_pct: float
+    nivel_conversion: str
+    insight: str
+
+
+class TrafficResponse(BaseModel):
+    traffic_id: str
+    semana_fiscal: int | None
+    rows: list[StoreTrafficRow]
+    avg_conversion: float
+    best_store: str
+    worst_store: str

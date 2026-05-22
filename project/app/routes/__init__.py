@@ -9,6 +9,7 @@ from app.routes.simulate import router as simulate_router
 from app.routes.health import router as health_router
 from app.routes.promotions import router as promotions_router
 from app.routes.inventory import router as inventory_router
+from app.routes.traffic import router as traffic_router
 
 api_router = APIRouter()
 api_router.include_router(upload_router)
@@ -18,3 +19,4 @@ api_router.include_router(simulate_router)
 api_router.include_router(health_router)
 api_router.include_router(promotions_router)
 api_router.include_router(inventory_router)
+api_router.include_router(traffic_router)
