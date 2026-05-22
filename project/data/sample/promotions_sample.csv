@@ -1,0 +1,122 @@
+semana_fiscal,fecha_inicio,fecha_fin,tipo_promo,categoria,descripcion,md_pct
+1,2023-01-30,2023-02-05,WkndPromo,Mujer,Toda la colección 50%+20% off / Seleccionados $599,50
+1,2023-01-30,2023-02-05,WkndPromo,Accesorios,Bolsos y cinturones B1G1 50% off,50
+1,2023-01-30,2023-02-05,DD,Mujer,B2G1 en blusas y faldas,33
+1,2023-01-30,2023-02-05,DD,Calzado,"Tenis seleccionados B2$1,099",15
+2,2023-02-06,2023-02-12,WkndPromo,Niños,Giftsets B1G1 50% off (6 al 13 feb),50
+2,2023-02-06,2023-02-12,DD,Mujer,B2G1 en blusas y faldas,33
+2,2023-02-06,2023-02-12,DD,Calzado,"Tenis seleccionados B2$1,099",15
+3,2023-02-13,2023-02-19,WkndPromo,Mujer,San Valentín - Vestidos B1G1 50% off,50
+3,2023-02-13,2023-02-19,OtherPromo,Niños,Pijamas B1G1 (11 al 14 feb),50
+3,2023-02-13,2023-02-19,DD,Mujer,B2G1 en blusas y faldas,33
+4,2023-02-20,2023-02-26,WkndPromo,Accesorios,Todo hogar B2G1 (18 al 20),33
+4,2023-02-20,2023-02-26,OtherPromo,Mujer,Giftsets B1G1 14 febrero,50
+4,2023-02-20,2023-02-26,DD,Mujer,B2G1 en blusas y faldas,33
+5,2023-02-27,2023-03-05,WkndPromo,Niños,Colección Primavera B1G1 / $599 seleccionados,50
+5,2023-02-27,2023-03-05,OtherPromo,Calzado,Toda la colección B1G1 50% off (25 al 27),50
+5,2023-02-27,2023-03-05,DD,Niños,B3G1 ropa infantil,25
+6,2023-03-06,2023-03-12,WkndPromo,Hombre,Camisas y pantalones B2G1 (4 al 6),33
+6,2023-03-06,2023-03-12,OtherPromo,Calzado,Botas seleccionadas B1G1 (1 al 13 mar),50
+6,2023-03-06,2023-03-12,DD,Niños,B3G1 ropa infantil,25
+7,2023-03-13,2023-03-19,WkndPromo,Accesorios,Bolsos + cinturones B2G1 (11 al 13),33
+7,2023-03-13,2023-03-19,DD,Niños,B2G1 ropa infantil,33
+8,2023-03-20,2023-03-26,WkndPromo,Mujer,Día de la Mujer - Colección completa 40% off,40
+8,2023-03-20,2023-03-26,OtherPromo,Calzado,Día de la Moda - Tenis $799 (16 al 20),20
+8,2023-03-20,2023-03-26,DD,Mujer,B3G1 blusas,25
+9,2023-03-27,2023-04-02,WkndPromo,Niños,Floorset Primavera Mix & Match B2G1 (25 al 27),33
+9,2023-03-27,2023-04-02,DD,Mujer,B3G1 blusas,25
+10,2023-04-03,2023-04-09,WkndPromo,Calzado,Semana Santa - Toda la colección B1G1 50% off,50
+10,2023-04-03,2023-04-09,OtherPromo,Calzado,Compra tenis get Free calcetines (4 al 10),15
+10,2023-04-03,2023-04-09,DD,Calzado,B3G1 calzado,25
+11,2023-04-10,2023-04-16,WkndPromo,Mujer,TODO ROPA MUJER B3G3 (14 al 17),33
+11,2023-04-10,2023-04-16,DD,Calzado,B3G1 calzado,25
+12,2023-04-17,2023-04-23,WkndPromo,Hombre,Colección Hombre B2G1 / Accesorios $299 (22 al 24),33
+12,2023-04-17,2023-04-23,DD,Hombre,B3G1 camisas,25
+13,2023-04-24,2023-04-30,WkndPromo,Accesorios,Todo accesorios B1G1 50% / Shimmer $249 (29 al 1 May),50
+13,2023-04-24,2023-04-30,OtherPromo,Niños,Día del Niño - Compra holder get free pocket (25 abril al 1 mayo),15
+13,2023-04-24,2023-04-30,DD,Hombre,B3G1 camisas,25
+14,2023-05-01,2023-05-07,WkndPromo,Mujer,Floorset Verano B2$599 (6 al 8 mayo),20
+14,2023-05-01,2023-05-07,OtherPromo,Niños,Giftsets HPP (25 abril al 10 mayo),25
+14,2023-05-01,2023-05-07,DD,Mujer,B2G1 vestidos,33
+15,2023-05-08,2023-05-14,WkndPromo,Calzado,Colección Verano TITBI $485 / Botas $799 (14 y 15),20
+15,2023-05-08,2023-05-14,DD,Mujer,B2G1 vestidos,33
+16,2023-05-15,2023-05-21,WkndPromo,Niños,Floorset Tropical Mix & Match B2G1 (20 al 22),33
+16,2023-05-15,2023-05-21,DD,Niños,B3G1 ropa infantil,25
+17,2023-05-22,2023-05-28,WkndPromo,Mujer,Ropa Mujer B3G2/B2G1 (27 al 29),33
+17,2023-05-22,2023-05-28,DD,Niños,B3G1 ropa infantil,25
+18,2023-05-29,2023-06-04,WkndPromo,Accesorios,Bolsos & Cinturones & Accesorios B2G1 (3 al 5),33
+18,2023-05-29,2023-06-04,OtherPromo,Niños,Giftsets B1G1 50% off (10 al 12),50
+18,2023-05-29,2023-06-04,DD,Mujer,B3G1 blusas verano,25
+19,2023-06-05,2023-06-11,WkndPromo,Hombre,Colección Hombre + AT B2G2 (10 al 12),33
+19,2023-06-05,2023-06-11,DD,Mujer,B3G1 blusas verano,25
+20,2023-06-12,2023-06-18,WkndPromo,Hombre,Colección Hombre 40% off / toda ropa B1G1 50% (17 al 19),40
+20,2023-06-12,2023-06-18,DD,Hombre,B3G1 camisas,25
+21,2023-06-19,2023-06-25,WkndPromo,Mujer,SAS - 30% y 40% off / Seleccionados $749,35
+21,2023-06-19,2023-06-25,OtherPromo,Mujer,6.21 Llegó SAS - Free accesorio con $699,15
+21,2023-06-19,2023-06-25,DD,Mujer,B2G1 / seleccionados $249,33
+22,2023-06-26,2023-07-02,WkndPromo,Mujer,SAS - 40% off / Seleccionados $749 / Holiday 65%,40
+22,2023-06-26,2023-07-02,OtherPromo,Calzado,1 julio Tenis 40% off (los que no son de SAS),40
+22,2023-06-26,2023-07-02,DD,Accesorios,B1G1 50% off accesorios,50
+23,2023-07-03,2023-07-09,WkndPromo,Mujer,SAS - 40% & 50% off / Seleccionados $699 / Holiday 70%,45
+23,2023-07-03,2023-07-09,DD,Accesorios,B1G1 50% off accesorios,50
+24,2023-07-10,2023-07-16,WkndPromo,Mujer,SAS - 50% off / Seleccionados $699 / Holiday 75%,50
+24,2023-07-10,2023-07-16,OtherPromo,Calzado,15 al 17 Botas B2G1 (los que no son de SAS),33
+24,2023-07-10,2023-07-16,DD,Mujer,B3G1 seleccionados $149,25
+25,2023-07-17,2023-07-23,WkndPromo,Mujer,SAS - 50%+20% off / Seleccionados $449 / Holiday 75%,55
+25,2023-07-17,2023-07-23,DD,Mujer,B3G1 seleccionados $149,25
+26,2023-07-24,2023-07-30,WkndPromo,Mujer,SAS BOS hasta el 7 de agosto,60
+26,2023-07-24,2023-07-30,DD,Calzado,B3G1 calzado seleccionado,25
+27,2023-07-31,2023-08-06,WkndPromo,Niños,Floorset Otoño Mix & Match B2G1 (29 al 31),33
+27,2023-07-31,2023-08-06,DD,Calzado,B3G1 calzado seleccionado,25
+28,2023-08-07,2023-08-13,WkndPromo,Calzado,Todo calzado & accesorios Mix & Match B2G1 (5 al 7),33
+28,2023-08-07,2023-08-13,DD,Hombre,B2G1 camisas,33
+29,2023-08-14,2023-08-20,WkndPromo,Mujer,Weekend Relax - toda ropa B1G1 50% off (12 al 15),50
+29,2023-08-14,2023-08-20,DD,Hombre,B2G1 camisas,33
+30,2023-08-21,2023-08-27,WkndPromo,Niños,Back to School - Ropa Niños $249 c/u (18 al 21),25
+30,2023-08-21,2023-08-27,OtherPromo,Niños,Back 2 School (16 al 31) Fun Size B4$529,20
+30,2023-08-21,2023-08-27,DD,Niños,B3G2 ropa infantil / $249 c/u (26 al 28),20
+31,2023-08-28,2023-09-03,WkndPromo,Accesorios,MIST EVENT $169 - Accesorios & Bolsos (3 y 4 sept),30
+31,2023-08-28,2023-09-03,OtherPromo,Hombre,Colección Hombre $219 (3 y 4 sept),20
+31,2023-08-28,2023-09-03,DD,Niños,B3G2 ropa infantil,20
+32,2023-09-04,2023-09-10,WkndPromo,Mujer,Floorset Otoño - Mujer & Niños B2G1 (9 al 11),33
+32,2023-09-04,2023-09-10,DD,Mujer,B2G1 vestidos otoño,33
+33,2023-09-11,2023-09-17,WkndPromo,Hombre,Floorset B2G2 Mix & Match (15 al 18),33
+33,2023-09-11,2023-09-17,DD,Mujer,B2G1 vestidos otoño,33
+34,2023-09-18,2023-09-24,WkndPromo,Calzado,Todo calzado & accesorios B1G1 50% off (23 al 25),50
+34,2023-09-18,2023-09-24,OtherPromo,Calzado,26 sept Botas seleccionadas B1G1,50
+34,2023-09-18,2023-09-24,DD,Hombre,B2G1 pantalones,33
+35,2023-09-25,2023-10-01,WkndPromo,Niños,Giftsets B1G1 50% off / Ropa Niños B1G1 (30 sept al 2 oct),50
+35,2023-09-25,2023-10-01,DD,Hombre,B2G1 pantalones,33
+36,2023-10-02,2023-10-08,WkndPromo,Mujer,TOTAL Mujer B3G2 / B2G1 (7 al 9 oct),33
+36,2023-10-02,2023-10-08,OtherPromo,Calzado,3wick B2$999 (7 al 9),15
+36,2023-10-02,2023-10-08,DD,Mujer,B3G2 colección otoño,20
+37,2023-10-09,2023-10-15,WkndPromo,Accesorios,"Accesorios TITBI $289 / Cinturones B2G2 (14, 15 y 16)",20
+37,2023-10-09,2023-10-15,DD,Mujer,B3G2 colección otoño,20
+38,2023-10-16,2023-10-22,WkndPromo,Calzado,Botas B2G1 / Travel Size B3G2 (21 al 23),33
+38,2023-10-16,2023-10-22,OtherPromo,Mujer,Todo ropa mujer B1G1 50% off (21 al 23),50
+38,2023-10-16,2023-10-22,DD,Calzado,B2G1 calzado otoño,33
+39,2023-10-23,2023-10-29,WkndPromo,Niños,Floorset Halloween M&M B2G1 (28 al 30) / B2G2 (28 al 31),33
+39,2023-10-23,2023-10-29,OtherPromo,Mujer,Holiday Preview! Happy Christmas Oct 24,20
+39,2023-10-23,2023-10-29,DD,Calzado,B2G1 calzado otoño,33
+40,2023-10-30,2023-11-05,WkndPromo,Mujer,GLOBAL BODY CARE DAY - Mujer + Hombre $229 c/u (5 y 6 nov),25
+40,2023-10-30,2023-11-05,DD,Mujer,B2G1 colección invierno,33
+41,2023-11-06,2023-11-12,WkndPromo,Niños,Secret Santa Fun Size $289 / Ropa Niños $199 (12 y 13 nov),30
+41,2023-11-06,2023-11-12,OtherPromo,Hombre,Noviembre 11 Single's Day - Todo Hombre B1G1,50
+41,2023-11-06,2023-11-12,DD,Mujer,B2G1 colección invierno,33
+42,2023-11-13,2023-11-19,WkndPromo,Mujer,"Apertura nueva tienda - 40% off primeros 40 clientes $1,500+",40
+42,2023-11-13,2023-11-19,DD,Hombre,B2G1 suéteres,33
+43,2023-11-20,2023-11-26,WkndPromo,Mujer,BUEN FIN - 4x2 toda la tienda (17 al 21 nov),75
+43,2023-11-20,2023-11-26,OtherPromo,Calzado,Compra Heater free bulb (22 al 27),15
+43,2023-11-20,2023-11-26,DD,Hombre,B2G1 suéteres,33
+44,2023-11-27,2023-12-03,WkndPromo,Calzado,Todo Holiday B2G1 (24 al 27),33
+44,2023-11-27,2023-12-03,OtherPromo,Mujer,Pre Candle en Ecom 2 a las 9pm,20
+44,2023-11-27,2023-12-03,DD,Mujer,B2G1 colección navideña,33
+45,2023-12-04,2023-12-10,WkndPromo,Accesorios,SUPER SALE $299 (3 y 4 dic),40
+45,2023-12-04,2023-12-10,DD,Mujer,B2G1 colección navideña,33
+46,2023-12-11,2023-12-17,WkndPromo,Mujer,SUPER SÁBADO - TODO MUJER B3G3 (9 al 11),33
+46,2023-12-11,2023-12-17,OtherPromo,Niños,Singlewick B2G1 (9 al 11),33
+46,2023-12-11,2023-12-17,DD,Niños,B3G3 ropa infantil navideña,25
+47,2023-12-18,2023-12-24,WkndPromo,Mujer,Holiday + Giftsets B2G2 (16 al 25 dic),33
+47,2023-12-18,2023-12-24,OtherPromo,Accesorios,"Dec 15 Free accesorio con $1,500",15
+47,2023-12-18,2023-12-24,DD,Mujer,B3G3 colección navideña,25
+47,2023-12-18,2023-12-24,DD,Niños,B3G3 pijamas navideñas,25
