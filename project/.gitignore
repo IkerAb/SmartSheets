@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.venv/
+venv/
+
+# Test and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Tooling
+.ruff_cache/
+.mypy_cache/
+
+# Environment files
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS/editor
+.DS_Store
+.vscode/
